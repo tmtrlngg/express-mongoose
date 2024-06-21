@@ -12,10 +12,14 @@
         <li>Brand: <%= product.brand %></li>
         <li>Price: <%= product.price %></li>
         <li>Color: <%= product.color %></li>
-        <li>Category: <%= product.category %></li>
+        <li>Category: <a href="/products?category=<%= product.category %>"><%= product.category %></a></li>
     </ul>
     <br>
 
     <a href="/products"><button>Back</button></a>
+    <a href="/products/<%= product._id %>/edit"><button>Edit</button></a>
+    <form action="/products/<%= product._id %>?_method=DELETE" method="post">
+        <button type="submit">Delete</button>
+    </form>
 </body>
 </html>
