@@ -23,6 +23,26 @@ app.get('/', (req,res) => {
     res.send('hello world')
 })
 
+app.get('/products', async (req,res) => {
+    const products = await Product.find({});
+    res.render('products/index', {products})
+})
+
+app.get('/products/create', (req,res) => {
+    res.render('products/create');
+})
+
+app.get('/products/:id', async (req,res) => {
+    const {id} = req.params;
+    try {
+        const product = await Product.findById(id);
+        res.render('products/detail', {product})
+    } catch (error) {
+        res.send('Product tidak ditemukan')
+    }
+
+})
+
 app.listen(3000, () => {
     console.log('App running in port http://localhost:3000');
 })
