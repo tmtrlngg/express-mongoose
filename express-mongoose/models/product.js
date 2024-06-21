@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const productSchema = mongoose.Schema({
-     name: {
+    name: {
         type: String,
         required: true
     },
@@ -11,18 +11,16 @@ const productSchema = mongoose.Schema({
     },
     price: {
         type: Number,
-        required: true,
-        min: 0
+        required: true
     },
     color: {
         type: String,
         required: true
     },
-    size: {
+    category: {
         type: String,
-        required: true,
-        enum: ['S', 'M', 'L', 'XL']
-    },
+        enum: ['Baju', 'Celana', 'Aksesoris', 'Jaket'],
+    }
 })
 
 const Product = mongoose.model('Product', productSchema);
