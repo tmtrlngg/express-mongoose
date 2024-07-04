@@ -17,6 +17,7 @@
     <br>
 
     <a href="/products"><button>Back</button></a>
+    <a href="/garments/<%= product.garment._id %>"><button><%= product.garment.name %></button></a>
     <a href="/products/<%= product._id %>/edit"><button>Edit</button></a>
     <form action="/products/<%= product._id %>?_method=DELETE" method="post">
         <button type="submit">Delete</button>

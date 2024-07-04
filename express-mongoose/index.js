@@ -4,6 +4,7 @@ var methodOverride = require('method-override')
 
 // Models
 const Product = require('./models/product');
+const Garment = require('./models/garment');
 
 // Connect MongoDb
 const mongoose = require('mongoose');
@@ -36,6 +37,58 @@ app.get('/', (req, res) => {
     res.send('hello world')
 })
 
+app.get('/garments', wrapAsync(async (req,res) => {
+    const garments = await Garment.find({});
+    res.render('garment/index', {garments});
+}))
+
+app.get('/garments/create',(req,res) => {
+    res.render('garment/create');
+})
+
+app.post('/garments', wrapAsync(async (req,res) => {
+    const garment = new Garment(req.body) 
+    await garment.save();
+    res.redirect('/garments');
+}))
+
+app.get('/garments/:id', wrapAsync(async(req,res) => {
+    const { id } = req.params;
+    const garment = await Garment.findById(id).populate('products')
+    // res.send(garment)
+    res.render('garment/detail', {garment});
+}))
+
+app.get('/garments/:garment_id/products/create',(req,res) => {
+    const {garment_id} = req.params;
+    res.render('products/create', { garment_id });
+})
+
+app.post('/garments/:garment_id/products/', wrapAsync(async(req,res) => {
+    const {garment_id} = req.params;
+    const garment = await Garment.findById(garment_id);
+    const product = new Product(req.body);
+    garment.products.push(product);
+    product.garment = garment;
+    await garment.save();
+    await product.save();
+    console.log(garment);
+    res.redirect(`/garments/${garment._id}`);
+}))
+
+app.delete('/garments/:garment_id', wrapAsync(async(req, res) => {
+    const {garment_id} = req.params;
+    await Garment.findOneAndDelete({_id: garment_id});
+    res.redirect('/garments');
+
+}))
+
+
+
+
+// PRODUCTS
+
+
 app.get('/products', async (req, res) => {
     const { category } = req.query;
     if (category) {
@@ -51,21 +104,29 @@ app.get('/products/create', (req, res) => {
     res.render('products/create');
 })
 
-app.post('/products', async (req, res, next) => {
+// app.post('/products', async (req, res, next) => {
+//     const product = new Product(req.body);
+//     try {
+//         await product.save();
+//         res.redirect('/products');
+//     } catch (error) {
+//         next(new errorHandler('Failed to create', 424))
+//         // res.status(424).send('Failed to create')
+//         // res.status(424).send(error.message)
+//     }
+// })
+
+app.post('/products', wrapAsync(async (req, res, next) => {
     const product = new Product(req.body);
-    try {
-        await product.save();
-        res.redirect('/products');
-    } catch (error) {
-        next(new errorHandler('Failed to create', 424))
-        // res.status(424).send('Failed to create')
-    }
-})
+    await product.save();
+    res.redirect('/products');
+    // res.status(424).send('Failed to create')
+}))
 
 app.get('/products/:id', async (req, res, next) => {
     const { id } = req.params;
     try {
-        const product = await Product.findById(id);
+        const product = await Product.findById(id).populate('garment');
         res.render('products/detail', { product })
     } catch (error) {
         next(new errorHandler('Product not found', 404));
@@ -105,6 +166,14 @@ app.delete('/products/:id', async (req, res) => {
     res.redirect('/products');
 })
 
+app.use((err, req, res, next) => {
+    console.dir(err)
+    if(err.name = 'ValidationError') {
+        err.status = 400
+        err.message = Object.values(err.errors).map(item => item.message);
+    }
+    next(err)
+})
 app.use((err, req, res, next) => {
     const { status = 500, message = 'Something went wrong' } = err;
     res.status(status).send(message);
