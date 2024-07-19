@@ -13,7 +13,7 @@
     <a href="/garments/create"><button>Add Garment</button></a>
     <ul>
         <% for(let garment of garments) {%>
-        <li><%= garment.name %> - <%= garment.brand %> <a href="/garments/<%= garment._id %>"><button>Detail</button></a></li>
+        <li><%= garment.name %> - <%= garment.location %> <a href="/garments/<%= garment._id %>"><button>Detail</button></a></li>
         <% } %>
     </ul>
 </body>
