@@ -1,6 +1,8 @@
 const path = require('path');
 const express = require('express');
 var methodOverride = require('method-override')
+const session = require('express-session');
+const flash = require('connect-flash');
 
 // Models
 const Product = require('./models/product');
@@ -32,6 +34,14 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'))
 
+// Session dan Flash
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+}));
+
+app.use(flash());
 
 app.get('/', (req, res) => {
     res.send('hello world')
@@ -39,7 +49,7 @@ app.get('/', (req, res) => {
 
 app.get('/garments', wrapAsync(async (req,res) => {
     const garments = await Garment.find({});
-    res.render('garment/index', {garments});
+    res.render('garment/index', {garments, message: req.flash('success')});
 }))
 
 app.get('/garments/create',(req,res) => {
@@ -49,6 +59,7 @@ app.get('/garments/create',(req,res) => {
 app.post('/garments', wrapAsync(async (req,res) => {
     const garment = new Garment(req.body) 
     await garment.save();
+    req.flash('success', 'Berhasil menambahkan Garment!');
     res.redirect('/garments');
 }))
 
